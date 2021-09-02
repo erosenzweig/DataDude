@@ -17,10 +17,13 @@ export default class Game extends Phaser.Scene
 		const width = this.scale.width;
 		const height = this.scale.height;
 
-		this.background = this.add.tileSprite(0, 0, width, height, TextureKeys.Background)
-			.setOrigin(0)
-			.setScrollFactor(0);
-
+		const bgBack = this.add.tileSprite(0, 0, width, height, TextureKeys.BgBack).setOrigin(0).setScrollFactor(0);
+		const bgMid = this.add.tileSprite(0, 0, width, height, TextureKeys.BgMid).setOrigin(0).setScrollFactor(0);
+		const bgGround = this.add.tileSprite(0, 0, width, height, TextureKeys.BgGround).setOrigin(0).setScrollFactor(0);
+		const bgGroundTop = this.add.tileSprite(0, 0, width, height, TextureKeys.BgGroundTop).setOrigin(0).setScrollFactor(0);
+					
+		const bgLayer = this.add.layer();
+		
 		//this.physics.world.setBounds(0, 0, Number.MAX_SAFE_INTEGER, height - 55);
 	}
 

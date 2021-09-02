@@ -13,7 +13,12 @@ export default class Preloader extends Phaser.Scene
 
 	preload()
 	{
-		this.load.image(TextureKeys.Background, 'background/background.png');
+		this.load.image(TextureKeys.BgBack, 'background/bg_back.png');
+		this.load.image(TextureKeys.BgMid, 'background/bg_mid.png');
+		this.load.image(TextureKeys.BgGround, 'background/bg_ground.png');
+		this.load.image(TextureKeys.BgGroundTop, 'background/bg_groundtop.png');
+
+		this.load.spritesheet(TextureKeys.DataDude, 'character/datadude.png', {frameWidth: 24, frameHeight: 24});
 	}
 
 	create()
