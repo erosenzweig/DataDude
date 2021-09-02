@@ -9,6 +9,8 @@ export default class Game extends Phaser.Scene
 	ground: Phaser.Physics.Arcade.StaticGroup;
 	cursors: Phaser.Types.Input.Keyboard.CursorKeys;
 	cam: Phaser.Cameras.Scene2D.Camera;
+
+	grounded: boolean;
 	
 	speed: number;
 	jumpForce: number;
@@ -18,6 +20,7 @@ export default class Game extends Phaser.Scene
 		super(SceneKeys.Game);
 		this.speed = 3;
 		this.jumpForce = 4;
+		this.grounded = false;
 	}
 
 	preload()
@@ -29,7 +32,11 @@ export default class Game extends Phaser.Scene
 		this.load.image(TextureKeys.BgGround, 'background/bg_ground.png');
 		this.load.image(TextureKeys.BgGroundTop, 'background/bg_groundtop.png');
 
-		this.load.spritesheet(TextureKeys.DataDude, 'character/datadude.png', {frameWidth: 24, frameHeight: 24});
+		this.load.image(TextureKeys.DataGood, 'data/data_good.png');
+		this.load.image(TextureKeys.DataCorrupt, 'data/data_corrupt.png');
+
+		this.load.spritesheet(TextureKeys.DataDudeRun, 'character/datadude_run.png', {frameWidth: 24, frameHeight: 24});
+		this.load.spritesheet(TextureKeys.DataDudeJump, 'character/datadude_jump.png', {frameWidth: 24, frameHeight: 24});
 
 		this.cursors = this.input.keyboard.createCursorKeys();
 	}
@@ -83,34 +90,58 @@ export default class Game extends Phaser.Scene
 
 	createPlayer()
 	{
-		const player = this.physics.add.sprite(50, 0, TextureKeys.DataDude);
+		const player = this.physics.add.sprite(50, 0, TextureKeys.DataDudeRun);
 		player.setCollideWorldBounds(true);
 
 		this.anims.create({
 			key: 'run',
-			frames: this.anims.generateFrameNames(TextureKeys.DataDude, {start: 0, end: 6}),
+			frames: this.anims.generateFrameNames(TextureKeys.DataDudeRun, {start: 0, end: 6}),
 			frameRate: 12,
 			repeat: -1
 		});
+
+		this.anims.create({
+			key: 'jump',
+			frames: this.anims.generateFrameNames(TextureKeys.DataDudeJump, {start: 0, end: 0}),
+			frameRate: 12,
+			repeat: -1
+		})
 
 		return player;
 	}
 
 	update(t: number, dt: number)
 	{
-		if(this.cursors.left.isDown)
+		this.grounded = this.player.body.touching.down;
+
+		if (this.cursors.space.isDown && this.grounded)
 		{
-			this.cam.scrollX -= this.speed;
-			this.player.x += this.speed;
+			this.player.setVelocityY(-100);
+			this.player.anims.play('jump', true);
 		}
-		else if (this.cursors.right.isDown)
+		else if(!this.cursors.left?.isDown && !this.cursors.right?.isDown)
 		{
-			this.cam.scrollX += this.speed;
-			this.player.x += this.speed;
+			this.player.setVelocityX(0);
+			if(!this.grounded)
+				this.player.anims.play('jump', true);
+			else{
+				this.player.anims.play('run', true);
+				this.player.anims.stop();
+			}
 		}
-		else if (this.cursors.space.isDown)
+		else if(this.cursors.left?.isDown)
 		{
-			this.player.y -= this.jumpForce;
+			this.player.setVelocityX(-50);
+			this.player.flipX = true;
+			if(this.grounded)
+				this.player.anims.play('run', true);
+		}
+		else if (this.cursors.right?.isDown)
+		{
+			this.player.flipX = false;
+			this.player.setVelocityX(50);
+			if(this.grounded)
+				this.player.anims.play('run', true);
 		}
 	}
 }
