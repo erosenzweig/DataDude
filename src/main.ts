@@ -2,12 +2,12 @@ import Phaser from 'phaser'
 
 import Preloader from './scenes/Preloader'
 import Game from './scenes/Game'
-import GameOver from './scenes/GameOver'
+//import GameOver from './scenes/GameOver'
 
 const config: Phaser.Types.Core.GameConfig = {
 	type: Phaser.AUTO,
-	width: 1200,
-	height: 800,
+	width: 160,
+	height: 113,
 	physics: {
 		default: 'arcade',
 		arcade: {
@@ -15,7 +15,9 @@ const config: Phaser.Types.Core.GameConfig = {
 			debug: true
 		}
 	},
-	scene: [Preloader, Game, GameOver]
+	zoom: 5,
+	pixelArt: true,
+	scene: [Preloader, Game]
 }
 
 export default new Phaser.Game(config)

@@ -5,11 +5,28 @@ import SceneKeys from '../consts/SceneKeys'
 
 export default class Game extends Phaser.Scene
 {
-	private background!: Phaser.GameObjects.TileSprite
-
 	constructor()
 	{
 		super(SceneKeys.Game)
+	}
+
+	preload()
+	{
+		this.load.image(TextureKeys.BgMid, 'background/bg_mid.png');
+		this.load.image(TextureKeys.BgBack, 'background/bg_back.png');
+		this.load.image(TextureKeys.BgGround, 'background/bg_ground.png');
+		this.load.image(TextureKeys.BgGroundTop, 'background/bg_groundtop.png');
+
+		this.load.spritesheet(TextureKeys.DataDude, 'character/datadude.png', {frameWidth: 24, frameHeight: 24});
+
+		// this.anims.create({
+		// 	key: 'run',
+		// 	frames: this.anims.generateFrameNames(TextureKeys.DataDude, {start: 0, end: 6}),
+		// 	frameRate: 12,
+		// 	repeat: -1
+		// });
+
+		// this.player = this.physics.add.sprite(200, 200, TextureKeys.DataDude);
 	}
 
 	create()
@@ -17,18 +34,16 @@ export default class Game extends Phaser.Scene
 		const width = this.scale.width;
 		const height = this.scale.height;
 
-		const bgBack = this.add.tileSprite(0, 0, width, height, TextureKeys.BgBack).setOrigin(0).setScrollFactor(0);
-		const bgMid = this.add.tileSprite(0, 0, width, height, TextureKeys.BgMid).setOrigin(0).setScrollFactor(0);
-		const bgGround = this.add.tileSprite(0, 0, width, height, TextureKeys.BgGround).setOrigin(0).setScrollFactor(0);
-		const bgGroundTop = this.add.tileSprite(0, 0, width, height, TextureKeys.BgGroundTop).setOrigin(0).setScrollFactor(0);
-					
-		const bgLayer = this.add.layer();
+		var bgBack = this.add.image(width / 2, height / 2, TextureKeys.BgBack);
+		var bgMid = this.add.image(width / 2, height / 2, TextureKeys.BgMid);
+		var bgGround = this.add.image(width / 2, height / 2, TextureKeys.BgGround);
+		var bgGroundTop = this.add.image(width / 2, height / 2, TextureKeys.BgGroundTop);
 		
 		//this.physics.world.setBounds(0, 0, Number.MAX_SAFE_INTEGER, height - 55);
 	}
 
 	update(t: number, dt: number)
 	{
-		this.background.setTilePosition(this.cameras.main.scrollX)
+		
 	}
 }
