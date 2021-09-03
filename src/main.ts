@@ -5,16 +5,17 @@ import Game from './scenes/Game'
 //import GameOver from './scenes/GameOver'
 
 const config: Phaser.Types.Core.GameConfig = {
-	type: Phaser.AUTO,
+	type: Phaser.CANVAS,
 	width: 160,
 	height: 113,
 	physics: {
 		default: 'arcade',
 		arcade: {
-			gravity: { y: 200 }
+			gravity: { y: 200 },
+			debug: true
 		}
 	},
-	zoom: 5,
+	zoom: 4,
 	pixelArt: true,
 	scene: [Preloader, Game]
 }

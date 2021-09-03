@@ -5,10 +5,16 @@ import SceneKeys from '../consts/SceneKeys'
 
 export default class Game extends Phaser.Scene
 {
-	player: Phaser.Physics.Arcade.Sprite;
-	ground: Phaser.Physics.Arcade.StaticGroup;
-	cursors: Phaser.Types.Input.Keyboard.CursorKeys;
-	cam: Phaser.Cameras.Scene2D.Camera;
+	// create the background class property
+	bgBack!: Phaser.GameObjects.TileSprite
+	bgMid!: Phaser.GameObjects.TileSprite
+	bgGround!: Phaser.GameObjects.TileSprite
+	bgGroundTop!: Phaser.GameObjects.TileSprite
+
+	player!: Phaser.Physics.Arcade.Sprite;
+	ground!: Phaser.Physics.Arcade.StaticGroup;
+	cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
+	cam!: Phaser.Cameras.Scene2D.Camera;
 
 	grounded: boolean;
 	
@@ -18,15 +24,13 @@ export default class Game extends Phaser.Scene
 	constructor()
 	{
 		super(SceneKeys.Game);
-		this.speed = 3;
-		this.jumpForce = 4;
+		this.speed = 50;
+		this.jumpForce = -100;
 		this.grounded = false;
 	}
 
 	preload()
 	{
-		this.cam = this.cameras.main;
-
 		this.load.image(TextureKeys.BgMid, 'background/bg_mid.png');
 		this.load.image(TextureKeys.BgBack, 'background/bg_back.png');
 		this.load.image(TextureKeys.BgGround, 'background/bg_ground.png');
@@ -45,47 +49,25 @@ export default class Game extends Phaser.Scene
 	{
 		const width = this.scale.width;
 		const height = this.scale.height;
+		
+		// Add Background to Scene
+		this.bgBack = this.add.tileSprite(0, 0, width, height, TextureKeys.BgBack).setScrollFactor(0).setOrigin(0, 0);
+		this.bgMid = this.add.tileSprite(0, 0, width, height, TextureKeys.BgMid).setScrollFactor(0).setOrigin(0, 0);
 
-		this.createBackground(this, width, height);
-		const ground = this.createPlatforms(this, width, height);
-
+		// Create player instance and add physics collision with ground
 		this.player = this.createPlayer();
+		
+		// Create Platforms
+		this.bgGround = this.add.tileSprite(0, height - 25, width, 25, TextureKeys.BgGround).setScrollFactor(0).setOrigin(0, 0);
+		this.bgGroundTop = this.add.tileSprite(0, height - 25, width, 7, TextureKeys.BgGroundTop).setScrollFactor(0).setOrigin(0, 0);
 
-		this.physics.world.setBounds(0, 0, width, height);
+		// Follow player on start
+		this.cam = this.cameras.main;
+		this.cam.startFollow(this.player);
 
-		this.physics.add.collider(this.player, ground);
-
-		// account for 3x screens at zoom factor
-		this.cameras.main.setBounds(0, 0, width * 4 * 3, height);
-	}
-
-	createBackground(scene, width, height)
-	{
-		const bgBack = this.add.image(0, height, TextureKeys.BgBack).setOrigin(0, 1).setScrollFactor(0.02);
-		this.add.image(bgBack.width, height, TextureKeys.BgBack).setOrigin(0, 1).setScrollFactor(0.02);
-		this.add.image(bgBack.width * 2, height, TextureKeys.BgBack).setOrigin(0, 1).setScrollFactor(0.02);
-
-		const bgMid = this.add.image(0, height, TextureKeys.BgMid).setOrigin(0, 1).setScrollFactor(0.15);
-		this.add.image(bgMid.width, height, TextureKeys.BgMid).setOrigin(0, 1).setScrollFactor(0.15);
-		this.add.image(bgMid.width * 2, height, TextureKeys.BgMid).setOrigin(0, 1).setScrollFactor(0.15);
-	}
-
-	createPlatforms(scene, width, height)
-	{
-		const bgGround = this.add.image(0, height, TextureKeys.BgGround).setOrigin(0, 1).setScrollFactor(0.5);
-		this.add.image(bgGround.width, height, TextureKeys.BgGround).setOrigin(0, 1).setScrollFactor(0.5);
-		this.add.image(bgGround.width * 2, height, TextureKeys.BgGround).setOrigin(0, 1).setScrollFactor(0.5);
-
-		const bgGroundTop = this.add.image(0, height - 18, TextureKeys.BgGroundTop).setOrigin(0, 1).setScrollFactor(0.5);
-		this.add.image(bgGroundTop.width, height - 18, TextureKeys.BgGroundTop).setOrigin(0, 1).setScrollFactor(0.5);
-		this.add.image(bgGroundTop.width * 2, height - 18, TextureKeys.BgGroundTop).setOrigin(0, 1).setScrollFactor(0.5);
-
-		const ground = this.physics.add.staticGroup();
-
-		ground.add(bgGround, false);
-		ground.add(bgGroundTop, false);
-
-		return ground;
+		// Set world and camera bounds
+		this.cam.setBounds(0, 0, Number.MAX_SAFE_INTEGER, height);
+		this.physics.world.setBounds(0, 0, Number.MAX_SAFE_INTEGER, height);
 	}
 
 	createPlayer()
@@ -110,13 +92,23 @@ export default class Game extends Phaser.Scene
 		return player;
 	}
 
+	scrollBackground(scrollX: number)
+	{
+		this.bgBack.setTilePosition(scrollX * 0.02);
+		this.bgMid.setTilePosition(scrollX * 0.2);
+		this.bgGround.setTilePosition(scrollX * 0.5);
+		this.bgGroundTop.setTilePosition(scrollX * 0.5);
+	}
+
 	update(t: number, dt: number)
 	{
+		this.scrollBackground(this.cam.scrollX);
+
 		this.grounded = this.player.body.touching.down;
 
 		if (this.cursors.space.isDown && this.grounded)
 		{
-			this.player.setVelocityY(-100);
+			this.player.setVelocityY(this.jumpForce);
 			this.player.anims.play('jump', true);
 		}
 		else if(!this.cursors.left?.isDown && !this.cursors.right?.isDown)
@@ -131,7 +123,7 @@ export default class Game extends Phaser.Scene
 		}
 		else if(this.cursors.left?.isDown)
 		{
-			this.player.setVelocityX(-50);
+			this.player.setVelocityX(-this.speed);
 			this.player.flipX = true;
 			if(this.grounded)
 				this.player.anims.play('run', true);
@@ -139,7 +131,7 @@ export default class Game extends Phaser.Scene
 		else if (this.cursors.right?.isDown)
 		{
 			this.player.flipX = false;
-			this.player.setVelocityX(50);
+			this.player.setVelocityX(this.speed);
 			if(this.grounded)
 				this.player.anims.play('run', true);
 		}
