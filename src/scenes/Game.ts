@@ -5,28 +5,36 @@ import SceneKeys from '../consts/SceneKeys'
 
 export default class Game extends Phaser.Scene
 {
-	// create the background class property
+	// create scenery (backgrounds and ground planes)
 	bgBack!: Phaser.GameObjects.TileSprite
 	bgMid!: Phaser.GameObjects.TileSprite
 	bgGround!: Phaser.GameObjects.TileSprite
 	bgGroundTop!: Phaser.GameObjects.TileSprite
-
 	player!: Phaser.Physics.Arcade.Sprite;
-	ground!: Phaser.Physics.Arcade.StaticGroup;
+	ground!: Phaser.Physics.Arcade.Group;
+	groundZone!: Phaser.GameObjects.Zone;
+	
+	// basic keyboard input 
 	cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
-	cam!: Phaser.Cameras.Scene2D.Camera;
 
+	// camera
+	cam!: Phaser.Cameras.Scene2D.Camera;
+	camOffsetX!: number;
+	
+	// player states
 	grounded: boolean;
 	
+	// player movement parameters
 	speed: number;
 	jumpForce: number;
 	
 	constructor()
 	{
 		super(SceneKeys.Game);
-		this.speed = 50;
+		this.speed = 75;   
 		this.jumpForce = -100;
 		this.grounded = false;
+		this.camOffsetX = -35;
 	}
 
 	preload()
@@ -61,9 +69,17 @@ export default class Game extends Phaser.Scene
 		this.bgGround = this.add.tileSprite(0, height - 25, width, 25, TextureKeys.BgGround).setScrollFactor(0).setOrigin(0, 0);
 		this.bgGroundTop = this.add.tileSprite(0, height - 25, width, 7, TextureKeys.BgGroundTop).setScrollFactor(0).setOrigin(0, 0);
 
+		// Added a stationary Zone for ground collision with infinitely scrolling tileSprite
+		this.groundZone = this.add.zone(0, height - 25, width, 25).setOrigin(0, 0);
+		this.physics.add.existing(this.groundZone);
+		this.groundZone.body.allowGravity = false;
+		this.groundZone.body.immovable = true;
+
+		this.physics.add.collider(this.player, this.groundZone);
+		
 		// Follow player on start
 		this.cam = this.cameras.main;
-		this.cam.startFollow(this.player);
+		this.cam.startFollow(this.player, undefined, undefined, undefined, this.camOffsetX);
 
 		// Set world and camera bounds
 		this.cam.setBounds(0, 0, Number.MAX_SAFE_INTEGER, height);
@@ -72,13 +88,13 @@ export default class Game extends Phaser.Scene
 
 	createPlayer()
 	{
-		const player = this.physics.add.sprite(50, 0, TextureKeys.DataDudeRun);
+		const player = this.physics.add.sprite(25, this.scale.height - 50, TextureKeys.DataDudeRun);
 		player.setCollideWorldBounds(true);
 
 		this.anims.create({
 			key: 'run',
 			frames: this.anims.generateFrameNames(TextureKeys.DataDudeRun, {start: 0, end: 6}),
-			frameRate: 12,
+			frameRate: 14,
 			repeat: -1
 		});
 
@@ -94,10 +110,12 @@ export default class Game extends Phaser.Scene
 
 	scrollBackground(scrollX: number)
 	{
-		this.bgBack.setTilePosition(scrollX * 0.02);
-		this.bgMid.setTilePosition(scrollX * 0.2);
-		this.bgGround.setTilePosition(scrollX * 0.5);
-		this.bgGroundTop.setTilePosition(scrollX * 0.5);
+		this.groundZone.body.position.x = scrollX;
+		this.groundZone.body.position.y = this.scale.height - 25;
+		this.bgBack.tilePositionX = scrollX * 0.02;
+		this.bgMid.tilePositionX = scrollX * 0.2;
+		this.bgGround.tilePositionX = scrollX * 0.5;
+		this.bgGroundTop.tilePositionX = scrollX * 0.5;
 	}
 
 	update(t: number, dt: number)
@@ -107,33 +125,13 @@ export default class Game extends Phaser.Scene
 		this.grounded = this.player.body.touching.down;
 
 		if (this.cursors.space.isDown && this.grounded)
-		{
 			this.player.setVelocityY(this.jumpForce);
+
+		this.player.setVelocityX(this.speed);
+
+		if(!this.grounded)
 			this.player.anims.play('jump', true);
-		}
-		else if(!this.cursors.left?.isDown && !this.cursors.right?.isDown)
-		{
-			this.player.setVelocityX(0);
-			if(!this.grounded)
-				this.player.anims.play('jump', true);
-			else{
-				this.player.anims.play('run', true);
-				this.player.anims.stop();
-			}
-		}
-		else if(this.cursors.left?.isDown)
-		{
-			this.player.setVelocityX(-this.speed);
-			this.player.flipX = true;
-			if(this.grounded)
-				this.player.anims.play('run', true);
-		}
-		else if (this.cursors.right?.isDown)
-		{
-			this.player.flipX = false;
-			this.player.setVelocityX(this.speed);
-			if(this.grounded)
-				this.player.anims.play('run', true);
-		}
+		else
+			this.player.anims.play('run', true);
 	}
 }
