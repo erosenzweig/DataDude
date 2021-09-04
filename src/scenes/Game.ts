@@ -6,10 +6,10 @@ import SceneKeys from '../consts/SceneKeys'
 export default class Game extends Phaser.Scene
 {
 	// create scenery (backgrounds and ground planes)
-	bgBack!: Phaser.GameObjects.TileSprite
-	bgMid!: Phaser.GameObjects.TileSprite
-	bgGround!: Phaser.GameObjects.TileSprite
-	bgGroundTop!: Phaser.GameObjects.TileSprite
+	bgBack!: Phaser.GameObjects.TileSprite;
+	bgMid!: Phaser.GameObjects.TileSprite;
+	bgGround!: Phaser.GameObjects.TileSprite;
+	bgGroundTop!: Phaser.GameObjects.TileSprite;
 	player!: Phaser.Physics.Arcade.Sprite;
 	ground!: Phaser.Physics.Arcade.Group;
 	groundZone!: Phaser.GameObjects.Zone;
@@ -103,9 +103,19 @@ export default class Game extends Phaser.Scene
 			frames: this.anims.generateFrameNames(TextureKeys.DataDudeJump, {start: 0, end: 0}),
 			frameRate: 12,
 			repeat: -1
-		})
+		});
 
 		return player;
+	}
+
+	objectSpawner()
+	{
+
+	}
+
+	gameOver()
+	{
+		this.scene.run(SceneKeys.GameOver);
 	}
 
 	scrollBackground(scrollX: number)

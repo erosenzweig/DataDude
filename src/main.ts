@@ -2,7 +2,7 @@ import Phaser from 'phaser'
 
 import Preloader from './scenes/Preloader'
 import Game from './scenes/Game'
-//import GameOver from './scenes/GameOver'
+import GameOver from './scenes/GameOver'
 
 const config: Phaser.Types.Core.GameConfig = {
 	type: Phaser.CANVAS,
@@ -11,13 +11,12 @@ const config: Phaser.Types.Core.GameConfig = {
 	physics: {
 		default: 'arcade',
 		arcade: {
-			gravity: { y: 200 },
-			debug: true
+			gravity: { y: 200 }
 		}
 	},
 	zoom: 4,
 	pixelArt: true,
-	scene: [Preloader, Game]
+	scene: [Preloader, Game, GameOver]
 }
 
 export default new Phaser.Game(config)
