@@ -124,7 +124,10 @@ export default class Game extends Phaser.Scene
 
 		this.scoreTimer = this.time.addEvent({
 			delay: 1000,
-			callback: () => { this.score += 1; },
+			callback: () => { 
+				this.score += 1; 
+				this.scoreLabel.setText(`Score: ${this.score}`); 
+			},
 			callbackScope: this,
 			loop: true
 		});
@@ -152,7 +155,7 @@ export default class Game extends Phaser.Scene
 		
 		if(obj2.texture.key === TextureKeys.DataGood) {
 			this.score += 100;
-			this.scoreLabel.update();
+			this.scoreLabel.setText(`Score: ${this.score}`);
 		}
 		else if(obj2.texture.key === TextureKeys.DataCorrupt) {
 			this.music.stop();
@@ -216,6 +219,8 @@ export default class Game extends Phaser.Scene
 	
 	gameOver()
 	{
+		this.scene.run(SceneKeys.StarField);
+		this.scene.run(SceneKeys.HighScore);
 		this.scene.run(SceneKeys.GameOver);
 	}
 

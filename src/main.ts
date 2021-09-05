@@ -2,6 +2,8 @@ import Phaser from 'phaser'
 
 import Preloader from './scenes/Preloader'
 import Game from './scenes/Game'
+import StarField from './scenes/StarField'
+import HighScore from './scenes/HighScore'
 import GameOver from './scenes/GameOver'
 
 const config: Phaser.Types.Core.GameConfig = {
@@ -11,12 +13,11 @@ const config: Phaser.Types.Core.GameConfig = {
 	physics: {
 		default: 'arcade',
 		arcade: {
-			gravity: { y: 400 },
-			debug: true
+			gravity: { y: 400 }
 		}
 	},
 	pixelArt: true,
-	scene: [Preloader, Game, GameOver]
+	scene: [Preloader, Game, StarField, HighScore, GameOver]
 }
 
 export default new Phaser.Game(config)
