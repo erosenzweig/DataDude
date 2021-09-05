@@ -17,13 +17,13 @@ export default class GameOver extends Phaser.Scene
 
 	create()
 	{
-        this.input.keyboard.once('keydown-SPACE', () => {
-            // stop the GameOver scene
-            this.scene.stop(SceneKeys.GameOver)
+        // this.input.keyboard.once('keydown-SPACE', () => {
+        //     // stop the GameOver scene
+        //     this.scene.stop(SceneKeys.GameOver)
         
-            // stop and restart the Game scene
-            this.scene.stop(SceneKeys.Game)
-            this.scene.start(SceneKeys.Game)
-        });
+        //     // stop and restart the Game scene
+        //     this.scene.stop(SceneKeys.Game)
+        //     this.scene.start(SceneKeys.Game)
+        // });
 	}
 }
