@@ -9,7 +9,6 @@ export default class Starfield extends Phaser.Scene
     speed!: number;
     max!: number;
 
-
     constructor ()
     {
         super(SceneKeys.StarField);
@@ -27,7 +26,7 @@ export default class Starfield extends Phaser.Scene
 
     preload ()
     {
-        this.load.image('star', 'assets/demoscene/star4.png');
+        this.load.image('star', 'background/star4.png');
     }
 
     create ()

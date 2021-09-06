@@ -6,7 +6,7 @@ import AudioKeys from '../consts/AudioKeys';
 
 export default class Game extends Phaser.Scene
 {
-	// create scenery (backgrounds and ground planes)
+	// Scenery (backgrounds and ground planes)
 	bgBack!: Phaser.GameObjects.TileSprite;
 	bgMid!: Phaser.GameObjects.TileSprite;
 	bgGround!: Phaser.GameObjects.TileSprite;
@@ -17,50 +17,54 @@ export default class Game extends Phaser.Scene
 
 	spawnables!: Phaser.Physics.Arcade.StaticGroup;
 
-	// score
+	// Score
 	scoreLabel!: Phaser.GameObjects.Text;
 	score!: number;
 
-	// timers
+	// Timers
 	spawnTimer!: Phaser.Time.TimerEvent;
 	scoreTimer!: Phaser.Time.TimerEvent;
 	
-	// music
+	// Music
 	music!: Phaser.Sound.BaseSound;
 
-	// basic keyboard input 
+	// Basic Keyboard Input 
 	cursors!: Phaser.Types.Input.Keyboard.CursorKeys;
 
-	// camera
+	// Camera
 	cam!: Phaser.Cameras.Scene2D.Camera;
 	camOffsetX!: number;
 	
-	// player states
-	grounded: boolean;
+	// Player States
+	grounded!: boolean;
 	
-	// player movement parameters
-	speed: number;
-	jumpForce: number;
+	// Player Movement Parameters
+	speed!: number;
+	jumpForce!: number;
 
-	//Scale Factor
+	// Scale Factor
 	scaleFactor!: number;
 	
+	// Progression
+	speedMultiplier!: number;
+
 	constructor()
 	{
 		super(SceneKeys.Game);
+	}
+
+	create()
+	{
 		this.speed = 150;   
 		this.jumpForce = -350;   
 		this.grounded = false;
 		this.camOffsetX = -175;
 		this.score = 0;
 		this.scaleFactor = 5;
+		this.speedMultiplier = 1;
 
-	}
-
-	create()
-	{
-		const width = this.scale.width;
-		const height = this.scale.height;
+		const width = 160;
+		const height = 113;
 		
 		// Add Background to Scene
 		this.bgBack = this.add.tileSprite(0, 0, width, height, TextureKeys.BgBack).setScrollFactor(0).setOrigin(0, 0).setScale(this.scaleFactor, this.scaleFactor);
@@ -68,6 +72,7 @@ export default class Game extends Phaser.Scene
 		
 		// Create player instance and add physics collision with ground
 		this.player = this.createPlayer();
+		this.player.setPosition(30, 250);
 
 		// Player Input
 		this.cursors = this.input.keyboard.createCursorKeys();
@@ -153,16 +158,18 @@ export default class Game extends Phaser.Scene
 	{
 		const sp = obj2 as Phaser.Types.Physics.Arcade.ImageWithStaticBody;
 		
+		// if hit good data, increase score, else if hit bad data, die.
 		if(obj2.texture.key === TextureKeys.DataGood) {
-			this.score += 100;
+			this.speedMultiplier += 0.005;
+			this.score = Phaser.Math.CeilTo(100 + this.score * this.speedMultiplier, 0);
+			this.speed = this.speed * this.speedMultiplier;
 			this.scoreLabel.setText(`Score: ${this.score}`);
 		}
 		else if(obj2.texture.key === TextureKeys.DataCorrupt) {
-			this.music.stop();
-			this.scene.stop();
-			this.scene.start(SceneKeys.GameOver);
+			this.music.destroy();
+			this.scene.launch(SceneKeys.StarField);
+			this.scene.start(SceneKeys.GameOver, {score: this.score});
 		}
-			
 
 		this.spawnables.killAndHide(sp);
 		sp.body.enable = false;
@@ -215,13 +222,6 @@ export default class Game extends Phaser.Scene
 		this.bgMid.tilePositionX = scrollX * 0.1;
 		this.bgGround.tilePositionX = scrollX * 0.4;
 		this.bgGroundTop.tilePositionX = scrollX * 0.4;
-	}
-	
-	gameOver()
-	{
-		this.scene.run(SceneKeys.StarField);
-		this.scene.run(SceneKeys.HighScore);
-		this.scene.run(SceneKeys.GameOver);
 	}
 
 	update(t: number, dt: number)
